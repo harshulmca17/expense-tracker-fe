@@ -47,7 +47,7 @@ const Ingredients = () => {
   }
   const addIngredientHandler = useCallback(async (ingredient) => {
     try {
-      const response = await fetch('http://localhost:3002/api/expenses', {
+      const response = await fetch('http://192.168.0.128:3002/api/expenses', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

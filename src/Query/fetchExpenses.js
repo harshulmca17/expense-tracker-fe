@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 
 
 const fetchExpensesFromAPI = async () => {
-    const response = await fetch('http://localhost:3002/api/expenses');
+    const response = await fetch('http://192.168.0.128:3002/api/expenses');
     if (!response.ok) {
         throw new Error('Network response was not ok');
     }
