@@ -116,3 +116,34 @@
     height: 1rem;
     width: 1rem;
   }
+
+  .expenses-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.download-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #4F46E5;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    max-width: 13%;
+    transition: background-color 0.2s;
+}
+
+.download-button:hover {
+    background-color: #4338CA;
+}
+
+.icon-small {
+    width: 16px;
+    height: 16px;
+}
