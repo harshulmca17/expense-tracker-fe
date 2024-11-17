@@ -1,0 +1,118 @@
+/* Container styles */
+.expenses-container {
+    width: 100%;
+    max-width: 64rem; /* 4xl in Tailwind */
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  
+  .expenses-card {
+    background: linear-gradient(to bottom right, #EFF6FF, #F5F3FF); /* blue-50 to purple-50 */
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .card-content {
+    padding: 1.5rem;
+  }
+  
+  /* Header styles */
+  .expenses-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(to right, #2563EB, #9333EA);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  /* Expense items container */
+  .expenses-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  /* Individual expense item */
+  .expense-item {
+    border: 1px solid #E5E7EB;
+    border-left: 4px solid #60A5FA; /* blue-400 */
+    border-radius: 0.5rem;
+    padding: 1rem;
+    transition: all 0.2s ease;
+  }
+  
+  .expense-item:hover {
+    background-color: rgba(239, 246, 255, 0.5); /* blue-50 at 50% opacity */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Header section of expense item */
+  .expense-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .user-details p:first-child {
+    font-weight: 500;
+  }
+  
+  .user-details p:last-child {
+    font-size: 0.875rem;
+    color: #6B7280; /* gray-500 */
+  }
+  
+  .expense-amount {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2563EB; /* blue-600 */
+  }
+  
+  /* Description section */
+  .expense-description {
+    margin-top: 0.5rem;
+    color: #4B5563; /* gray-600 */
+    font-size: 0.875rem;
+  }
+  
+  /* Date section */
+  .expense-date {
+    margin-top: 0.75rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #6B7280; /* gray-500 */
+  }
+  
+  .expense-date svg {
+    margin-right: 0.5rem;
+    color: #8B5CF6; /* purple-500 */
+  }
+  
+  /* Icon styles */
+  .icon {
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+  
+  .icon-blue {
+    color: #60A5FA; /* blue-500 */
+  }
+  
+  .icon-purple {
+    color: #8B5CF6; /* purple-500 */
+  }
+  
+  .icon-small {
+    height: 1rem;
+    width: 1rem;
+  }

@@ -1,26 +1,23 @@
-import React, { useReducer, useEffect, useCallback, useMemo } from 'react';
+import React, { useReducer, useEffect, useCallback, useMemo, useState } from 'react';
 
 import IngredientForm from './IngredientForm';
 import IngredientList from './IngredientList';
 import ErrorModal from '../UI/ErrorModal';
 import Search from './Search';
 import useHttp from '../../hooks/http';
+import { useQueryClient } from '@tanstack/react-query';
+import LastMonth from './userSummary/userSummary';
+import Card from '../UI/Card';
+import NavigationButton from '../Button/button';
+import Statements from './Statements/statements';
+import DatePicker from '../DatePicker/datePicker';
+import DatePickerNew from '../DatePicker/datePicker';
+import ExpensesFetchFromDB from '../../Query/fetchExpenses';
 
-const ingredientReducer = (currentIngredients, action) => {
-  switch (action.type) {
-    case 'SET':
-      return action.ingredients;
-    case 'ADD':
-      return [...currentIngredients, action.ingredient];
-    case 'DELETE':
-      return currentIngredients.filter(ing => ing.id !== action.id);
-    default:
-      throw new Error('Should not get there!');
-  }
-};
+
 
 const Ingredients = () => {
-  const [userIngredients, dispatch] = useReducer(ingredientReducer, []);
+
   const {
     isLoading,
     error,
@@ -30,32 +27,62 @@ const Ingredients = () => {
     reqIdentifer,
     clear
   } = useHttp();
+  const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 7)));
+  const [endDate, setEndDate] = useState(new Date());
 
   useEffect(() => {
     if (!isLoading && !error && reqIdentifer === 'REMOVE_INGREDIENT') {
-      dispatch({ type: 'DELETE', id: reqExtra });
+      // dispatch({ type: 'DELETE', id: reqExtra });
     } else if (!isLoading && !error && reqIdentifer === 'ADD_INGREDIENT') {
-      dispatch({
-        type: 'ADD',
-        ingredient: { id: data.name, ...reqExtra }
-      });
+      // dispatch({
+      //   type: 'ADD',
+      //   ingredient: { id: data.name, ...reqExtra }
+      // });
     }
   }, [data, reqExtra, reqIdentifer, isLoading, error]);
 
-  const filteredIngredientsHandler = useCallback(filteredIngredients => {
-    dispatch({ type: 'SET', ingredients: filteredIngredients });
+  function UpdateExpenses() {
+    // const queryClient = useQueryClient();
+    // queryClient.invalidateQueries({ queryKey: ['expenses'] });
+  }
+  const addIngredientHandler = useCallback(async (ingredient) => {
+    try {
+      const response = await fetch('http://localhost:3002/api/expenses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ingredient)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add expense');
+      }
+      UpdateExpenses();
+      const data = await response.json();
+      // Handle success - you might want to update state or call another function here
+      return data;
+    } catch (error) {
+      // Handle error - you might want to show an error message or update error state
+      console.error('Error adding expense:', error);
+      throw error;
+    }
   }, []);
 
-  const addIngredientHandler = useCallback(ingredient => {
-    sendRequest(
-      'https://react-hooks-update.firebaseio.com/ingredients.json',
-      'POST',
-      JSON.stringify(ingredient),
-      ingredient,
-      'ADD_EXPENSE'
-    );
-  }, [sendRequest]);
-
+  const filterExpensesByDateRange = (expenses, startDate, endDate) => {
+    return expenses.filter(expense => {
+      const expenseDate = new Date(expense.created_at);
+      // Remove time part for accurate date comparison
+      expenseDate.setHours(0, 0, 0, 0);
+      const startDateTime = new Date(startDate);
+      startDateTime.setHours(0, 0, 0, 0);
+      const endDateTime = new Date(endDate);
+      endDateTime.setHours(0, 0, 0, 0);
+  
+      return expenseDate >= startDateTime && expenseDate <= endDateTime;
+    });
+  };
+  
   const removeIngredientHandler = useCallback(
     ingredientId => {
       sendRequest(
@@ -72,12 +99,18 @@ const Ingredients = () => {
   const ingredientList = useMemo(() => {
     return (
       <IngredientList
-        ingredients={userIngredients}
         onRemoveItem={removeIngredientHandler}
       />
     );
-  }, [userIngredients, removeIngredientHandler]);
+  }, [removeIngredientHandler]);
+  const { data: expenses, isLoading: isLoadingExpenses } = ExpensesFetchFromDB();
 
+  if (isLoadingExpenses)
+    return <p>Expenses Are Loading....</p>
+
+
+  const finalExpenses = filterExpensesByDateRange(expenses, startDate, endDate);
+  console.log(finalExpenses,expenses,'finalExpenses')
   return (
     <div className="App">
       {error && <ErrorModal onClose={clear}>{error}</ErrorModal>}
@@ -86,11 +119,41 @@ const Ingredients = () => {
         onAddIngredient={addIngredientHandler}
         loading={isLoading}
       />
+      {/* <section style={{
+        width: '30rem',
+        maxWidth: '80%',
+        margin: '2rem auto'
+      }}>
+        <Card>
+          <NavigationButton link ='/statement' text='See Statement'/>
+        </Card>
+      </section> */}
 
-      <section>
-        <Search onLoadIngredients={filteredIngredientsHandler} />
-        {ingredientList}
+      <section style={{
+        width: '30rem',
+        maxWidth: '100%',
+        margin: '2rem auto'
+      }}>
+        <DatePickerNew startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
       </section>
+      <section style={{
+        width: '30rem',
+        maxWidth: '100%',
+        margin: '2rem auto'
+      }}>
+        <LastMonth startDate={startDate} endDate={endDate} expenses={finalExpenses} />
+      </section>
+      <section style={{
+        width: '30rem',
+        maxWidth: '100%',
+        margin: '2rem auto'
+      }}>
+        <Card>
+          <Statements startDate={startDate} endDate={endDate} expenses={finalExpenses} />
+        </Card>
+      </section>
+
+
     </div>
   );
 };
