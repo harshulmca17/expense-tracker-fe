@@ -12,6 +12,7 @@ import {
 } from "../../accordion";
 import style from './userSummar.module.css';
 import UserFetchFromDB from '../../../Query/fetchUsers';
+import Card from '../../UI/Card';
 
 function calculateUserExpenses(users, expenses) {
   const userExpensesSummary = [];
@@ -23,10 +24,10 @@ function calculateUserExpenses(users, expenses) {
       expense.amount.trim() !== ''
     );
 
-    const commonExpenses = userExpenses.filter(expense => 
+    const commonExpenses = userExpenses.filter(expense =>
       expense.category?.toLowerCase() === 'common'
     );
-    const personalExpenses = userExpenses.filter(expense => 
+    const personalExpenses = userExpenses.filter(expense =>
       expense.category?.toLowerCase() === 'personal'
     );
 
@@ -118,9 +119,9 @@ export default function LastMonth({ startDate, endDate, expenses }) {
 
   const thirtyDaysAgo = startDate;
   const today = endDate;
-  console.log(calculateUserExpenses(users, expenses),'calculateUserExpenses(users, expenses)')
+  console.log(calculateUserExpenses(users, expenses), 'calculateUserExpenses(users, expenses)')
   return (
-    <div className="last-month-container">
+    <Card> <div className="last-month-container">
       <div className="header">
         <h3 className="title">User Expenses Overview</h3>
         <h3 className="date-range">
@@ -132,6 +133,6 @@ export default function LastMonth({ startDate, endDate, expenses }) {
           <UserExpenseRow key={user.name} user={user} />
         ))}
       </Accordion>
-    </div>
+    </div></Card>
   );
 }

@@ -1,6 +1,6 @@
 import Card from "../UI/Card";
 import DatePicker from "react-datepicker";
-
+import style from './datepicker.css'
 import "react-datepicker/dist/react-datepicker.css";
 import { CardContent, CardHeader, CardTitle } from "../UI/cards";
 export default function DatePickerNew({ setStartDate, setEndDate, startDate, endDate }) {
@@ -14,6 +14,7 @@ export default function DatePickerNew({ setStartDate, setEndDate, startDate, end
                     <DatePicker style={{
                         // Add your inline styles here
                         backgroundColor: '#f2f2f2',
+                        width:'50%',
                         color: '#333',
                         border: '1px solid #ccc',
                         borderRadius: '4px',
@@ -24,6 +25,7 @@ export default function DatePickerNew({ setStartDate, setEndDate, startDate, end
                         // Add your inline styles here
                         backgroundColor: '#f2f2f2',
                         color: '#333',
+                        width:'50%',
                         border: '1px solid #ccc',
                         borderRadius: '4px',
                         padding: '8px',
