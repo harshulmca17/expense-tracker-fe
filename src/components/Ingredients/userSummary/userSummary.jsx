@@ -1,71 +1,67 @@
-// app/components/LastMonth.tsx
-'use client';
+// components/LastMonth.jsx
+"use client"
 
+import React from 'react';
+import { format } from "date-fns";
+import { ChevronDown } from "lucide-react";
 import {
-  BarChart,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-} from "lucide-react";
-import { format, subDays } from "date-fns";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../../accordion";
+import style from './userSummar.module.css';
+import UserFetchFromDB from '../../../Query/fetchUsers';
 
-
-import styles from './userSummar.module.css';
-import UserFetchFromDB from "../../../Query/fetchUsers";
-import ExpensesFetchFromDB from "../../../Query/fetchExpenses";
-
-
-
-
-const userExpenses = [
-  {
-    name: "John Doe",
-    expenseCount: 12,
-    totalAmount: "2,340.00",
-  },
-  {
-    name: "Alice Smith",
-    expenseCount: 8,
-    totalAmount: "1,750.00",
-  },
-  {
-    name: "Bob Johnson",
-    expenseCount: 15,
-    totalAmount: "3,100.00",
-  },
-  {
-    name: "Emma Wilson",
-    expenseCount: 6,
-    totalAmount: "980.00",
-  },
-];
 function calculateUserExpenses(users, expenses) {
-  // Initialize the result array
   const userExpensesSummary = [];
 
-  // Process each user
   users.forEach(user => {
-    // Filter expenses for current user
     const userExpenses = expenses.filter(expense =>
       expense.userId === user.id.toString() &&
-      expense.amount && // Check if amount exists and is not empty
+      expense.amount &&
       expense.amount.trim() !== ''
     );
 
-    // Calculate total amount
-    const totalAmount = userExpenses.reduce((sum, expense) => {
-      const amount = parseFloat(expense.amount) || 0;
-      return sum + amount;
-    }, 0);
+    const commonExpenses = userExpenses.filter(expense => 
+      expense.category?.toLowerCase() === 'common'
+    );
+    const personalExpenses = userExpenses.filter(expense => 
+      expense.category?.toLowerCase() === 'personal'
+    );
 
-    // Create user summary object
+    const calculateTotal = (expenseArray) => {
+      return expenseArray.reduce((sum, expense) => {
+        const amount = parseFloat(expense.amount) || 0;
+        return sum + amount;
+      }, 0);
+    };
+
+    const totalCommonAmount = calculateTotal(commonExpenses);
+    const totalPersonalAmount = calculateTotal(personalExpenses);
+    const totalAmount = totalCommonAmount + totalPersonalAmount;
+
     const userSummary = {
       name: user.name,
       expenseCount: userExpenses.length,
       totalAmount: new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-      }).format(totalAmount)
+      }).format(totalAmount),
+      commonExpenses: {
+        count: commonExpenses.length,
+        amount: new Intl.NumberFormat('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(totalCommonAmount)
+      },
+      personalExpenses: {
+        count: personalExpenses.length,
+        amount: new Intl.NumberFormat('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(totalPersonalAmount)
+      }
     };
 
     userExpensesSummary.push(userSummary);
@@ -73,95 +69,69 @@ function calculateUserExpenses(users, expenses) {
 
   return userExpensesSummary;
 }
-const StatCard = ({ stat }) => (
-  <div className="rounded-lg border p-6 hover:shadow-lg transition-shadow">
-    <div className="flex items-center justify-between mb-4">
-      <div className="p-2 rounded-full bg-gray-100">
-        <stat.icon className="h-6 w-6 text-gray-600" />
-      </div>
-      <div
-        className={`flex items-center ${stat.increasing ? "text-green-600" : "text-red-600"}`}
-      >
-        {stat.increasing ? (
-          <TrendingUp className="h-4 w-4 mr-1" />
-        ) : (
-          <TrendingDown className="h-4 w-4 mr-1" />
-        )}
-        <span className="text-sm font-medium">{stat.change}</span>
-      </div>
-    </div>
-    <h3 className="text-gray-600 text-sm font-medium">{stat.name}</h3>
-    <p className="text-2xl font-semibold mt-1">{stat.value}</p>
-  </div>
-);
 
 const UserExpenseRow = ({ user }) => (
-  <div className={styles.expenseRow}>
-    <div className={styles.userInfo}>
-      <div className={styles.userAvatar}>
-        {user.name.charAt(0)}
+  <AccordionItem value={user.name}>
+    <AccordionTrigger className="expense-trigger">
+      <div className="expense-summary">
+        <div className="user-info">
+          {/* <div className="user-avatar">{user.name.charAt(0)}</div> */}
+          <span className="user-name">{user.name}</span>
+        </div>
+        <div className="expense-totals">
+          <div className="expense-count">
+            <span>{user.expenseCount}</span> expenses
+          </div>
+          <div className="expense-amount">
+            Rs. {user.totalAmount}
+          </div>
+        </div>
       </div>
-      <span className={styles.userName}>{user.name}</span>
-    </div>
-    <div className={styles.expenseInfo}>
-      <div className={styles.expenseCount}>
-        <span>{user.expenseCount}</span> expenses
+    </AccordionTrigger>
+    <AccordionContent>
+      <div className="expense-details">
+        <div className="expense-type common">
+          <h4>Common Expenses</h4>
+          <div className="expense-stats">
+            <span>{user.commonExpenses.count} expenses. </span>
+            <span>Rs. {user.commonExpenses.amount}</span>
+          </div>
+        </div>
+        <div className="expense-type personal">
+          <h4>Personal Expenses</h4>
+          <div className="expense-stats">
+            <span>{user.personalExpenses.count} expenses. </span>
+            <span>Rs. {user.personalExpenses.amount}</span>
+          </div>
+        </div>
       </div>
-      <div className={styles.expenseAmount}>
-        Rs. {user.totalAmount}
-      </div>
-    </div>
-  </div>
+    </AccordionContent>
+  </AccordionItem>
 );
 
 export default function LastMonth({ startDate, endDate, expenses }) {
   const { data: users, isLoading: isLoadingUsers } = UserFetchFromDB();
 
-
-  const today = endDate;
-  const thirtyDaysAgo = startDate;
-
-  // const today = new Date();
-  // const thirtyDaysAgo = subDays(today, 30);
-
   if (isLoadingUsers) {
-    return <p>Loading Summary....</p>;
+    return <div className="loading">Loading Summary....</div>;
   }
 
-  console.log(users, expenses, calculateUserExpenses(users, expenses))
+  const thirtyDaysAgo = startDate;
+  const today = endDate;
+  console.log(calculateUserExpenses(users, expenses),'calculateUserExpenses(users, expenses)')
   return (
-    <div className={`${styles.container}`}>
-      <div className={styles.header}>
-        {/* <h2 className={styles.title}>
+    <div className="last-month-container">
+      <div className="header">
+        <h3 className="title">User Expenses Overview</h3>
+        <h3 className="date-range">
           {format(thirtyDaysAgo, "MMMM d")} - {format(today, "MMMM d, yyyy")}
-        </h2> */}
-        {/* <p className={styles.subtitle}>
-          Performance metrics for the last 30 days
-        </p>*/}
+        </h3>
       </div>
-
-      {/* <div className={styles.statsGrid}>
-        {stats.map((stat) => (
-          <StatCard key={stat.name} stat={stat} />
+      <Accordion type="single" collapsible className="expenses-accordion">
+        {calculateUserExpenses(users, expenses).map((user) => (
+          <UserExpenseRow key={user.name} user={user} />
         ))}
-      </div> */}
-
-      <div className={styles.expensesSection}>
-        <div className={styles.expensesCard}>
-          <div className={styles.expensesHeader}>
-            <h3>User Expenses Overview</h3>
-            <h3 className={styles.title}>
-              {format(thirtyDaysAgo, "MMMM d")} - {format(today, "MMMM d, yyyy")}
-            </h3>
-          </div>
-          <div className={styles.expensesList}>
-            {calculateUserExpenses(users, expenses).map((user) => (
-              <UserExpenseRow key={user.name} user={user} />
-            ))}
-          </div>
-        </div>
-      </div>
+      </Accordion>
     </div>
   );
 }
-

@@ -1,0 +1,74 @@
+/* components/ui/accordion.css */
+.accordion-item {
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .accordion-header {
+    display: flex;
+  }
+  
+  .accordion-trigger {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    font-weight: 500;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+  }
+  
+  .accordion-trigger:hover {
+    text-decoration: underline;
+  }
+  
+  .accordion-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+  
+  .accordion-trigger[data-state='open'] .accordion-icon {
+    transform: rotate(180deg);
+  }
+  
+  .accordion-content {
+    overflow: hidden;
+    font-size: 0.875rem;
+    transition: height 0.2s ease;
+  }
+  
+  .accordion-content[data-state='open'] {
+    animation: slideDown 0.2s ease-out;
+  }
+  
+  .accordion-content[data-state='closed'] {
+    animation: slideUp 0.2s ease-out;
+  }
+  
+  .accordion-content-inner {
+    padding: 0 0 1rem 0;
+  }
+  
+  @keyframes slideDown {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
