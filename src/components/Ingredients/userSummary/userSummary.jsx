@@ -16,6 +16,11 @@ import Card from '../../UI/Card';
 
 function calculateUserExpenses(users, expenses) {
   const userExpensesSummary = [];
+  let totalAllUsersCommonAmount = 0;
+  let totalAllUsersPersonalAmount = 0;
+  let totalAllExpensesCount = 0;
+  let totalAllCommonExpensesCount = 0;
+  let totalAllPersonalExpensesCount = 0;
 
   users.forEach(user => {
     const userExpenses = expenses.filter(expense =>
@@ -41,6 +46,13 @@ function calculateUserExpenses(users, expenses) {
     const totalCommonAmount = calculateTotal(commonExpenses);
     const totalPersonalAmount = calculateTotal(personalExpenses);
     const totalAmount = totalCommonAmount + totalPersonalAmount;
+
+    // Update aggregated totals
+    totalAllUsersCommonAmount += totalCommonAmount;
+    totalAllUsersPersonalAmount += totalPersonalAmount;
+    totalAllExpensesCount += userExpenses.length;
+    totalAllCommonExpensesCount += commonExpenses.length;
+    totalAllPersonalExpensesCount += personalExpenses.length;
 
     const userSummary = {
       name: user.name,
@@ -68,13 +80,42 @@ function calculateUserExpenses(users, expenses) {
     userExpensesSummary.push(userSummary);
   });
 
+  // Add default user with combined totals
+  const defaultUserSummary = {
+    name: 'All Users',
+    expenseCount: totalAllExpensesCount,
+    totalAmount: new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(totalAllUsersCommonAmount + totalAllUsersPersonalAmount),
+    commonExpenses: {
+      count: totalAllCommonExpensesCount,
+      amount: new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(totalAllUsersCommonAmount)
+    },
+    personalExpenses: {
+      count: totalAllPersonalExpensesCount,
+      amount: new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(totalAllUsersPersonalAmount)
+    }
+  };
+
+  // Add default user at the beginning of the array
+  userExpensesSummary.unshift(defaultUserSummary);
+
   return userExpensesSummary;
 }
-
 const UserExpenseRow = ({ user }) => (
   <AccordionItem value={user.name}>
     <AccordionTrigger className="expense-trigger">
-      <div className="expense-summary">
+      <div className="expense-summary" style={{
+        justifyContent: "space-between",
+        display: 'flex'
+      }}>
         <div className="user-info">
           {/* <div className="user-avatar">{user.name.charAt(0)}</div> */}
           <span className="user-name">{user.name}</span>
@@ -119,7 +160,6 @@ export default function LastMonth({ startDate, endDate, expenses }) {
 
   const thirtyDaysAgo = startDate;
   const today = endDate;
-  console.log(calculateUserExpenses(users, expenses), 'calculateUserExpenses(users, expenses)')
   return (
     <Card> <div className="last-month-container">
       <div className="header">
